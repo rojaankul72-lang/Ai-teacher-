@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "StudentProfile": {
+      "title": "StudentProfile",
+      "description": "Profile and active lesson checkpoint for a child studying on the family phone.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the parent account." },
+        "preferredName": { "type": "string", "description": "Child's preferred name." },
+        "age": { "type": "integer", "description": "Child's age in years." },
+        "school": { "type": "string", "description": "School name." },
+        "studentClass": { "type": "string", "description": "LKG, UKG, or Class 1 to Class 10." },
+        "rollNumber": { "type": "string", "description": "Optional school roll number." },
+        "board": { "type": "string", "description": "CBSE, ICSE, BSE Odisha, NCERT, or State Board." },
+        "schoolMedium": { "type": "string", "description": "English, Hindi, or Odia medium." },
+        "preferredLanguage": { "type": "string", "enum": ["ENGLISH", "HINDI", "ODIA"], "description": "Preferred teaching language." },
+        "subjects": { "type": "array", "description": "Enrolled subjects list." },
+        "subjectDurations": { "type": "object", "description": "Map of subject name to period minutes." },
+        "interests": { "type": "array", "description": "Child's story and activity interests." },
+        "avatarColorHex": { "type": "string", "description": "Avatar badge accent color hex." },
+        "sampleProfile": { "type": "boolean", "description": "Whether this is a sample starter profile." },
+        "cameraPermissionForChild": { "type": "boolean", "description": "Parent consent for front-camera show-and-tell." },
+        "lastLessonId": { "type": "string", "description": "Last active lesson identifier." },
+        "lastLessonTitle": { "type": "string", "description": "Last active lesson title." },
+        "lastConceptId": { "type": "string", "description": "Exact concept saved when period ended or paused." },
+        "lastStepIndex": { "type": "integer", "description": "Checkpoint step index inside the lesson." },
+        "lastTeachingApproach": { "type": "string", "description": "Last adaptive teaching method tried." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update." }
+      },
+      "required": [
+        "userId", "preferredName", "age", "school", "studentClass", "rollNumber",
+        "board", "schoolMedium", "preferredLanguage", "subjects", "subjectDurations",
+        "interests", "avatarColorHex", "sampleProfile", "cameraPermissionForChild",
+        "lastLessonId", "lastLessonTitle", "lastConceptId", "lastStepIndex",
+        "lastTeachingApproach", "createdAt", "updatedAt"
+      ]
+    },
+    "ConceptMastery": {
+      "title": "ConceptMastery",
+      "description": "Concept-level understanding metrics, misconceptions, and next-day recall status.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "profileId": { "type": "string" },
+        "conceptId": { "type": "string" },
+        "conceptTitle": { "type": "string" },
+        "subject": { "type": "string" },
+        "lessonId": { "type": "string" },
+        "independentCorrect": { "type": "integer" },
+        "hintAssistedCorrect": { "type": "integer" },
+        "attempts": { "type": "integer" },
+        "misconceptions": { "type": "array" },
+        "needsPractice": { "type": "boolean" },
+        "nextDayRecallDue": { "type": "boolean" },
+        "nextDayRecallPassed": { "type": "boolean" },
+        "lastMethodUsed": { "type": "string" },
+        "demonstratedEvidence": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "profileId", "conceptId", "conceptTitle", "subject", "lessonId",
+        "independentCorrect", "hintAssistedCorrect", "attempts", "misconceptions",
+        "needsPractice", "nextDayRecallDue", "nextDayRecallPassed", "lastMethodUsed",
+        "demonstratedEvidence", "createdAt", "updatedAt"
+      ]
+    },
+    "LearningHistoryEntry": {
+      "title": "LearningHistoryEntry",
+      "description": "Per-child session log and checkpoint record.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "profileId": { "type": "string" },
+        "lessonId": { "type": "string" },
+        "lessonTitle": { "type": "string" },
+        "subject": { "type": "string" },
+        "storyStyle": { "type": "string" },
+        "language": { "type": "string", "enum": ["ENGLISH", "HINDI", "ODIA"] },
+        "summary": { "type": "string" },
+        "checkpointIndex": { "type": "integer" },
+        "completed": { "type": "boolean" },
+        "durationMinutes": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "profileId", "lessonId", "lessonTitle", "subject", "storyStyle",
+        "language", "summary", "checkpointIndex", "completed", "durationMinutes",
+        "createdAt", "updatedAt"
+      ]
+    },
+    "WeeklyTestRecord": {
+      "title": "WeeklyTestRecord",
+      "description": "Sunday Weekly Test Day attempt and revision report per subject.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "profileId": { "type": "string" },
+        "testDate": { "type": "string" },
+        "subject": { "type": "string" },
+        "totalQuestions": { "type": "integer" },
+        "correctCount": { "type": "integer" },
+        "currentQuestionIndex": { "type": "integer" },
+        "completed": { "type": "boolean" },
+        "conceptsNeedingRevision": { "type": "array" },
+        "answersSummary": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "profileId", "testDate", "subject", "totalQuestions",
+        "correctCount", "currentQuestionIndex", "completed",
+        "conceptsNeedingRevision", "answersSummary", "createdAt", "updatedAt"
+      ]
+    },
+    "VoiceLanguageSettings": {
+      "title": "VoiceLanguageSettings",
+      "description": "Voice, audio, caption, quality mode, and parent story preferences.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "selectedLanguage": { "type": "string", "enum": ["ENGLISH", "HINDI", "ODIA"] },
+        "selectedStoryStyle": { "type": "string" },
+        "speechSpeed": { "type": "number" },
+        "narrationVolume": { "type": "number" },
+        "musicVolume": { "type": "number" },
+        "captionsEnabled": { "type": "boolean" },
+        "lightweightMode": { "type": "boolean" },
+        "highResolutionMode": { "type": "boolean" },
+        "indianEpicModeEnabled": { "type": "boolean" },
+        "offlinePackDownloaded": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "selectedLanguage", "selectedStoryStyle", "speechSpeed",
+        "narrationVolume", "musicVolume", "captionsEnabled", "lightweightMode",
+        "highResolutionMode", "indianEpicModeEnabled", "offlinePackDownloaded",
+        "createdAt", "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/StudentProfile" },
+      "description": "Student profiles belonging to the authenticated parent/family account."
+    },
+    "/users/{userId}/progress/{progressId}": {
+      "schema": { "$ref": "#/entities/ConceptMastery" },
+      "description": "Per-concept mastery and adaptive teaching records."
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/LearningHistoryEntry" },
+      "description": "Learning history and lesson checkpoint records."
+    },
+    "/users/{userId}/weeklyTests/{testId}": {
+      "schema": { "$ref": "#/entities/WeeklyTestRecord" },
+      "description": "Sunday Weekly Test Day records and revision summaries."
+    },
+    "/users/{userId}/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/VoiceLanguageSettings" },
+      "description": "Parent and student voice, language, caption, and playback settings."
+    }
+  }
+}

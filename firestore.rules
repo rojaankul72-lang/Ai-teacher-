@@ -1,0 +1,303 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Core Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidLanguage(lang) {
+      return lang in ['ENGLISH', 'HINDI', 'ODIA'];
+    }
+
+    function isValidStringList(arr, maxLen) {
+      return arr is list && arr.size() <= maxLen && (arr.size() == 0 || arr[0] is string);
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is timestamp && ts <= request.time;
+    }
+
+    // Entity Validators
+    function isValidStudentProfile(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.preferredName is string && data.preferredName.size() >= 1 && data.preferredName.size() <= 40 &&
+             data.age is int && data.age >= 3 && data.age <= 18 &&
+             data.school is string && data.school.size() <= 80 &&
+             data.studentClass is string && data.studentClass.size() >= 1 && data.studentClass.size() <= 20 &&
+             data.rollNumber is string && data.rollNumber.size() <= 20 &&
+             data.board is string && data.board.size() >= 1 && data.board.size() <= 30 &&
+             data.schoolMedium is string && data.schoolMedium.size() >= 1 && data.schoolMedium.size() <= 20 &&
+             isValidLanguage(data.preferredLanguage) &&
+             isValidStringList(data.subjects, 15) &&
+             data.subjectDurations is map && data.subjectDurations.size() <= 15 &&
+             isValidStringList(data.interests, 15) &&
+             data.avatarColorHex is string && data.avatarColorHex.size() >= 1 && data.avatarColorHex.size() <= 12 &&
+             data.sampleProfile is bool &&
+             data.cameraPermissionForChild is bool &&
+             data.lastLessonId is string && data.lastLessonId.size() <= 64 &&
+             data.lastLessonTitle is string && data.lastLessonTitle.size() <= 120 &&
+             data.lastConceptId is string && data.lastConceptId.size() <= 64 &&
+             data.lastStepIndex is int && data.lastStepIndex >= 0 && data.lastStepIndex <= 100 &&
+             data.lastTeachingApproach is string && data.lastTeachingApproach.size() <= 64 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidConceptMastery(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.profileId is string && data.profileId.size() >= 1 && data.profileId.size() <= 128 &&
+             data.conceptId is string && data.conceptId.size() >= 1 && data.conceptId.size() <= 64 &&
+             data.conceptTitle is string && data.conceptTitle.size() >= 1 && data.conceptTitle.size() <= 120 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 40 &&
+             data.lessonId is string && data.lessonId.size() >= 1 && data.lessonId.size() <= 64 &&
+             data.independentCorrect is int && data.independentCorrect >= 0 && data.independentCorrect <= 1000 &&
+             data.hintAssistedCorrect is int && data.hintAssistedCorrect >= 0 && data.hintAssistedCorrect <= 1000 &&
+             data.attempts is int && data.attempts >= 0 && data.attempts <= 2000 &&
+             isValidStringList(data.misconceptions, 20) &&
+             data.needsPractice is bool &&
+             data.nextDayRecallDue is bool &&
+             data.nextDayRecallPassed is bool &&
+             data.lastMethodUsed is string && data.lastMethodUsed.size() <= 64 &&
+             data.demonstratedEvidence is string && data.demonstratedEvidence.size() <= 200 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidLearningHistoryEntry(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.profileId is string && data.profileId.size() >= 1 && data.profileId.size() <= 128 &&
+             data.lessonId is string && data.lessonId.size() >= 1 && data.lessonId.size() <= 64 &&
+             data.lessonTitle is string && data.lessonTitle.size() >= 1 && data.lessonTitle.size() <= 120 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 40 &&
+             data.storyStyle is string && data.storyStyle.size() >= 1 && data.storyStyle.size() <= 40 &&
+             isValidLanguage(data.language) &&
+             data.summary is string && data.summary.size() <= 400 &&
+             data.checkpointIndex is int && data.checkpointIndex >= 0 && data.checkpointIndex <= 100 &&
+             data.completed is bool &&
+             data.durationMinutes is int && data.durationMinutes >= 0 && data.durationMinutes <= 240 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidWeeklyTestRecord(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.profileId is string && data.profileId.size() >= 1 && data.profileId.size() <= 128 &&
+             data.testDate is string && data.testDate.size() >= 1 && data.testDate.size() <= 20 &&
+             data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 40 &&
+             data.totalQuestions is int && data.totalQuestions >= 1 && data.totalQuestions <= 50 &&
+             data.correctCount is int && data.correctCount >= 0 && data.correctCount <= 50 &&
+             data.currentQuestionIndex is int && data.currentQuestionIndex >= 0 && data.currentQuestionIndex <= 50 &&
+             data.completed is bool &&
+             isValidStringList(data.conceptsNeedingRevision, 20) &&
+             isValidStringList(data.answersSummary, 20) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidVoiceLanguageSettings(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             isValidLanguage(data.selectedLanguage) &&
+             data.selectedStoryStyle is string && data.selectedStoryStyle.size() >= 1 && data.selectedStoryStyle.size() <= 40 &&
+             data.speechSpeed is number && data.speechSpeed >= 0.5 && data.speechSpeed <= 2.0 &&
+             data.narrationVolume is number && data.narrationVolume >= 0.0 && data.narrationVolume <= 1.0 &&
+             data.musicVolume is number && data.musicVolume >= 0.0 && data.musicVolume <= 1.0 &&
+             data.captionsEnabled is bool &&
+             data.lightweightMode is bool &&
+             data.highResolutionMode is bool &&
+             data.indianEpicModeEnabled is bool &&
+             data.offlinePackDownloaded is bool &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    match /users/{userId} {
+
+      match /profiles/{profileId} {
+        allow get: if isOwner(userId) && isValidId(profileId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(profileId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'preferredName', 'age', 'school', 'studentClass', 'rollNumber',
+                           'board', 'schoolMedium', 'preferredLanguage', 'subjects', 'subjectDurations',
+                           'interests', 'avatarColorHex', 'sampleProfile', 'cameraPermissionForChild',
+                           'lastLessonId', 'lastLessonTitle', 'lastConceptId', 'lastStepIndex',
+                           'lastTeachingApproach', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'preferredName', 'age', 'school', 'studentClass', 'rollNumber',
+                           'board', 'schoolMedium', 'preferredLanguage', 'subjects', 'subjectDurations',
+                           'interests', 'avatarColorHex', 'sampleProfile', 'cameraPermissionForChild',
+                           'lastLessonId', 'lastLessonTitle', 'lastConceptId', 'lastStepIndex',
+                           'lastTeachingApproach', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidStudentProfile(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(profileId) &&
+                         isValidStudentProfile(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'preferredName', 'age', 'school', 'studentClass', 'rollNumber',
+                           'board', 'schoolMedium', 'preferredLanguage', 'subjects', 'subjectDurations',
+                           'interests', 'avatarColorHex', 'sampleProfile', 'cameraPermissionForChild',
+                           'lastLessonId', 'lastLessonTitle', 'lastConceptId', 'lastStepIndex',
+                           'lastTeachingApproach', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(profileId);
+      }
+
+      match /progress/{progressId} {
+        allow get: if isOwner(userId) && isValidId(progressId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(progressId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'profileId', 'conceptId', 'conceptTitle', 'subject', 'lessonId',
+                           'independentCorrect', 'hintAssistedCorrect', 'attempts', 'misconceptions',
+                           'needsPractice', 'nextDayRecallDue', 'nextDayRecallPassed', 'lastMethodUsed',
+                           'demonstratedEvidence', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'profileId', 'conceptId', 'conceptTitle', 'subject', 'lessonId',
+                           'independentCorrect', 'hintAssistedCorrect', 'attempts', 'misconceptions',
+                           'needsPractice', 'nextDayRecallDue', 'nextDayRecallPassed', 'lastMethodUsed',
+                           'demonstratedEvidence', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidConceptMastery(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(progressId) &&
+                         isValidConceptMastery(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().profileId == existing().profileId &&
+                         incoming().conceptId == existing().conceptId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'independentCorrect', 'hintAssistedCorrect', 'attempts', 'misconceptions',
+                           'needsPractice', 'nextDayRecallDue', 'nextDayRecallPassed', 'lastMethodUsed',
+                           'demonstratedEvidence', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(progressId);
+      }
+
+      match /sessions/{sessionId} {
+        allow get: if isOwner(userId) && isValidId(sessionId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(sessionId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'profileId', 'lessonId', 'lessonTitle', 'subject', 'storyStyle',
+                           'language', 'summary', 'checkpointIndex', 'completed', 'durationMinutes',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'profileId', 'lessonId', 'lessonTitle', 'subject', 'storyStyle',
+                           'language', 'summary', 'checkpointIndex', 'completed', 'durationMinutes',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidLearningHistoryEntry(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(sessionId) &&
+                         isValidLearningHistoryEntry(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().profileId == existing().profileId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'storyStyle', 'language', 'summary', 'checkpointIndex', 'completed',
+                           'durationMinutes', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(sessionId);
+      }
+
+      match /weeklyTests/{testId} {
+        allow get: if isOwner(userId) && isValidId(testId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(testId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'profileId', 'testDate', 'subject', 'totalQuestions',
+                           'correctCount', 'currentQuestionIndex', 'completed',
+                           'conceptsNeedingRevision', 'answersSummary', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'profileId', 'testDate', 'subject', 'totalQuestions',
+                           'correctCount', 'currentQuestionIndex', 'completed',
+                           'conceptsNeedingRevision', 'answersSummary', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidWeeklyTestRecord(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(testId) &&
+                         isValidWeeklyTestRecord(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().profileId == existing().profileId &&
+                         incoming().createdAt == existing().createdAt &&
+                         existing().completed == false &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'correctCount', 'currentQuestionIndex', 'completed',
+                           'conceptsNeedingRevision', 'answersSummary', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(testId);
+      }
+
+      match /settings/{settingId} {
+        allow get: if isOwner(userId) && isValidId(settingId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(settingId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().keys().hasAll([
+                           'userId', 'selectedLanguage', 'selectedStoryStyle', 'speechSpeed',
+                           'narrationVolume', 'musicVolume', 'captionsEnabled', 'lightweightMode',
+                           'highResolutionMode', 'indianEpicModeEnabled', 'offlinePackDownloaded',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'selectedLanguage', 'selectedStoryStyle', 'speechSpeed',
+                           'narrationVolume', 'musicVolume', 'captionsEnabled', 'lightweightMode',
+                           'highResolutionMode', 'indianEpicModeEnabled', 'offlinePackDownloaded',
+                           'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidVoiceLanguageSettings(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(settingId) &&
+                         isValidVoiceLanguageSettings(incoming()) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'selectedLanguage', 'selectedStoryStyle', 'speechSpeed',
+                           'narrationVolume', 'musicVolume', 'captionsEnabled', 'lightweightMode',
+                           'highResolutionMode', 'indianEpicModeEnabled', 'offlinePackDownloaded',
+                           'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(settingId);
+      }
+    }
+  }
+}

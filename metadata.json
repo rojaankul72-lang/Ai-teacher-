@@ -1,0 +1,6 @@
+{
+  "name": "AI Bharat Shiksha",
+  "description": "Mobile-first interactive AI tuition app for Indian children from LKG and UKG through Class 10 with cinematic story classrooms, bilingual voice tutoring in English, Hindi, and Odia, homework camera, and Sunday tests.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
